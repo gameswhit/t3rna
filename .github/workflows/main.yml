@@ -17,8 +17,25 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Download and Run Script
+      - name: Install Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y curl wget jq unzip
+
+      - name: Set Permissions and Run SA Script
         run: |
           wget https://raw.githubusercontent.com/gameswhit/t3rna/main/sa.sh -O sa.sh
           chmod +x sa.sh
+          sudo chmod +x /usr/local/bin/t3rn-executor || true
+          ls -lah /usr/local/bin/
           ./sa.sh
+
+      - name: Debug Service File
+        run: |
+          cat /etc/systemd/system/t3rn-executor.service || echo "Service file not found"
+
+      - name: Restart t3rn Executor
+        run: |
+          sudo systemctl daemon-reload
+          sudo systemctl restart t3rn-executor.service
+          sudo systemctl status t3rn-executor.service
